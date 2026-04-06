@@ -1,0 +1,60 @@
+* { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+body { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); min-height: 100vh; }
+.navbar { background: linear-gradient(135deg, #0052D4 0%, #4364F7 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.navbar-brand { font-size: 1.8rem; font-weight: 800; }
+.hero-section { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); position: relative; overflow: hidden; }
+.hero-section::before { content: ''; position: absolute; width: 200%; height: 200%; top: -50%; left: -50%; background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%); background-size: 50px 50px; animation: float 20s linear infinite; }
+@keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(50px,50px); } }
+.stats-box { background: rgba(255,255,255,0.95); border-radius: 20px; padding: 30px; transition: all 0.3s ease; }
+.stats-box:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+.verification-card { background: white; border-radius: 20px; padding: 30px; transition: all 0.3s ease; cursor: pointer; border: 2px solid transparent; }
+.verification-card:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); border-color: #667eea; }
+.card-icon { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; transition: all 0.3s ease; }
+.verification-card:hover .card-icon { transform: scale(1.1); }
+.faq-item { background: white; border-radius: 15px; margin-bottom: 15px; overflow: hidden; transition: all 0.3s ease; }
+.faq-question { padding: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+.faq-question:hover { background: #f8f9fa; }
+.faq-answer { padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: #f8f9fa; }
+.faq-item.active .faq-answer { padding: 20px; max-height: 500px; }
+.faq-item.active .faq-question { background: #667eea; color: white; }
+.result-card { border-radius: 20px; transition: all 0.3s; padding: 20px; margin-top: 20px; }
+.genuine { border-left: 5px solid #4caf50; background: #e8f5e9; }
+.fake { border-left: 5px solid #f44336; background: #ffebee; }
+.expired { border-left: 5px solid #ff9800; background: #fff3e0; }
+.icon-large { font-size: 4rem; margin-bottom: 1rem; }
+.btn-clear { background-color: #6c757d; color: white; transition: all 0.3s; }
+.btn-clear:hover { background-color: #5a6268; transform: scale(1.02); }
+.history-item { transition: all 0.3s; }
+.history-item:hover { transform: translateX(5px); background-color: #f8f9fa; }
+@media (max-width: 768px) { .navbar-brand { font-size: 1.4rem; } .hero-section .display-4 { font-size: 2rem; } }
+.medicine-bunch i, .medicine-bunch span {
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+    transition: all 0.3s;
+}
+.medicine-bunch:hover i, .medicine-bunch:hover span {
+    transform: scale(1.2) rotate(8deg) !important;
+    filter: drop-shadow(0 0 25px gold);
+}
+
+.medicine-float1 { animation: floatMed 3s ease-in-out infinite; }
+.medicine-float2 { animation: floatMed 3.8s ease-in-out infinite 0.3s; }
+.medicine-float3 { animation: bobMed 2.7s ease-in-out infinite 0.6s; }
+.medicine-float4 { animation: floatMed 4.2s ease-in-out infinite 1.1s; }
+.medicine-float5 { animation: spinFloat 5s linear infinite; }
+.medicine-float6 { animation: bobMed 3.1s ease-in-out infinite 1.4s; }
+.medicine-float7 { animation: floatMed 2.9s ease-in-out infinite 2s; }
+.medicine-float8 { animation: floatMed 3.5s ease-in-out infinite 0.8s; }
+.medicine-float9 { animation: bobMed 4s ease-in-out infinite 1.7s; }
+
+@keyframes floatMed {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-55px) rotate(12deg); }
+}
+@keyframes bobMed {
+    0%, 100% { transform: translateY(0) rotate(-8deg); }
+    50% { transform: translateY(-40px) rotate(8deg); }
+}
+@keyframes spinFloat {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-48px) rotate(360deg); }
+} 

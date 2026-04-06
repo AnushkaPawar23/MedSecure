@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedSecure - Type to Verify</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: #0a2f3a;">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">MedSecure</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-4">
+                    <div class="card-body p-5">
+                        <h2 class="text-center mb-4">Verify Medicine</h2>
+                        <form id="verifyForm">
+                            <div class="mb-3">
+                                <label class="form-label">Search by:</label>
+                                <select class="form-select" id="searchType">
+                                    <option value="name">Medicine Name</option>
+                                    <option value="batch">Batch Number</option>
+                                    <option value="code">Barcode</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" id="searchValue" placeholder="Enter value" required>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary flex-grow-1 py-2">Verify Now</button>
+                                <button type="button" class="btn btn-secondary py-2" id="clearBtn">Clear</button>
+                            </div>
+                        </form>
+                        <div id="result" class="mt-4" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        const verifyForm = document.getElementById('verifyForm');
+        const searchValue = document.getElementById('searchValue');
+        const clearBtn = document.getElementById('clearBtn');
+
+        verifyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const type = document.getElementById('searchType').value;
+            const value = searchValue.value.trim();
+            if (!value) return;
+            await verify(value, type);
+        });
+        clearBtn.addEventListener('click', () => {
+            searchValue.value = '';
+            document.getElementById('result').style.display = 'none';
+            searchValue.focus();
+        });
+
+        async function verify(value, type) {
+            const url = `${API_BASE_URL}/verify?${type}=${encodeURIComponent(value)}`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                displayResult(data);
+
+                // Save history if logged in
+                const user = localStorage.getItem('medsecure_user');
+                if (user) {
+                    const userData = JSON.parse(user);
+                    await fetch(`${API_BASE_URL}/history/add`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: userData.userId,
+                            searchQuery: value,
+                            searchType: type,
+                            scanResult: data.status,
+                            message: data.message
+                        })
+                    });
+                }
+            } catch (err) {
+                alert('Backend error: ' + err.message);
+            }
+        }
+
+        function displayResult(data) {
+            const div = document.getElementById('result');
+            div.style.display = 'block';
+            let statusClass = data.status === 'genuine' ? 'genuine' : (data.status === 'expired' ? 'expired' : 'fake');
+            div.innerHTML = `
+                <div class="result-card ${statusClass}">
+                    <div class="text-center">
+                        <div class="icon-large">${data.icon}</div>
+                        <h3>${data.name || 'Result'}</h3>
+                        <p class="lead">${data.message}</p>
+                    </div>
+                    <hr>
+                    ${data.manufacturer ? `<p><strong>Manufacturer:</strong> ${data.manufacturer}</p>` : ''}
+                    ${data.batchNum ? `<p><strong>Batch:</strong> ${data.batchNum}</p>` : ''}
+                    ${data.ingredients ? `<p><strong>Ingredients:</strong> ${data.ingredients}</p>` : ''}
+                    ${data.uses ? `<p><strong>Uses:</strong> ${data.uses}</p>` : ''}
+                    ${data.sideEffects ? `<p><strong>Side Effects:</strong> ${data.sideEffects}</p>` : ''}
+                    ${data.storageInstructions ? `<p><strong>Storage:</strong> ${data.storageInstructions}</p>` : ''}
+                    ${data.contraindications ? `<p><strong>Contraindications:</strong> ${data.contraindications}</p>` : ''}
+                    ${data.recommendation ? `<div class="alert alert-warning">${data.recommendation}</div>` : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

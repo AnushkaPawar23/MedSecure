@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedSecure - Scan Barcode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
+    <style>
+        #video { width: 100%; max-width: 600px; border-radius: 20px; background: #000; }
+        .note-box {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+        .detected-barcode {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">MedSecure</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h2 class="text-white mb-4">Scan Barcode</h2>
+                <div class="position-relative">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+                <div class="note-box mt-2">
+                    <i class="fas fa-info-circle me-2"></i> 
+                    <strong>Tip:</strong> For best results, ensure good lighting and hold the barcode steady. If the scanner misreads, you can correct the number below.
+                </div>
+                <button class="btn btn-warning mt-3" id="startCamera">Start Camera</button>
+                
+                <div id="detectedBarcodeArea" style="display: none;" class="detected-barcode mt-3">
+                    <strong>Detected Barcode:</strong> <span id="detectedBarcodeValue"></span>
+                    <button class="btn btn-success btn-sm ms-2" onclick="useDetectedBarcode()">Use This</button>
+                    <button class="btn btn-secondary btn-sm ms-2" onclick="ignoreDetectedBarcode()">Ignore</button>
+                </div>
+
+                <hr class="bg-white my-4">
+                <div class="card bg-white">
+                    <div class="card-body">
+                        <h5>Or enter barcode manually</h5>
+                        <div class="input-group">
+                            <input type="text" id="manualBarcode" class="form-control" placeholder="Enter barcode number">
+                            <button class="btn btn-primary" id="manualVerifyBtn" onclick="manualVerify()">Verify</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="result" class="result-card" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Global variables
+        window.pendingBarcode = null;
+        let video = document.getElementById('video');
+        let canvas = document.getElementById('canvas');
+        let context = canvas.getContext('2d');
+        let stream = null;
+        let scanning = false;
+        let animationId = null;
+
+        const startBtn = document.getElementById('startCamera');
+
+        startBtn.addEventListener('click', async () => {
+            if (stream) {
+                console.log('Stop camera button clicked');
+                stopCamera();
+                startBtn.innerText = 'Start Camera';
+                return;
+            }
+            try {
+                console.log('Starting camera...');
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+                video.play();
+                scanning = true;
+                animationId = requestAnimationFrame(tick);
+                startBtn.innerText = 'Stop Camera';
+                console.log('Camera started');
+            } catch (err) {
+                alert('Unable to access camera: ' + err.message);
+            }
+        });
+
+        function stopCamera() {
+            console.log('stopCamera called. Current pendingBarcode:', window.pendingBarcode);
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
+            }
+            scanning = false;
+            if (animationId) cancelAnimationFrame(animationId);
+            document.getElementById('detectedBarcodeArea').style.display = 'none';
+            window.pendingBarcode = null;
+            console.log('stopCamera completed. pendingBarcode cleared.');
+        }
+
+        function tick() {
+            if (!scanning) return;
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                let code = jsQR(imageData.data, canvas.width, canvas.height);
+                if (code && window.pendingBarcode === null) {
+                    window.pendingBarcode = code.data;
+                    document.getElementById('detectedBarcodeValue').innerText = window.pendingBarcode;
+                    document.getElementById('detectedBarcodeArea').style.display = 'block';
+                    scanning = false; // pause scanning
+                    console.log('✅ Barcode detected, pendingBarcode set to:', window.pendingBarcode);
+                }
+            }
+            if (scanning) {
+                animationId = requestAnimationFrame(tick);
+            }
+        }
+
+        function useDetectedBarcode() {
+            console.log('🔍 Use This called. Current pendingBarcode:', window.pendingBarcode);
+            if (window.pendingBarcode) {
+                verifyBarcode(window.pendingBarcode);
+                stopCamera();
+                startBtn.innerText = 'Start Camera';
+                document.getElementById('detectedBarcodeArea').style.display = 'none';
+                window.pendingBarcode = null;
+                console.log('✅ After verification, pending cleared.');
+            } else {
+                alert('No barcode detected yet. Please scan again.');
+                console.warn('⚠️ pendingBarcode was null');
+            }
+        }
+
+        function ignoreDetectedBarcode() {
+            console.log('❌ Ignore clicked. Clearing pending:', window.pendingBarcode);
+            window.pendingBarcode = null;
+            document.getElementById('detectedBarcodeArea').style.display = 'none';
+            scanning = true;
+            animationId = requestAnimationFrame(tick);
+        }
+
+        function manualVerify() {
+            const barcode = document.getElementById('manualBarcode').value.trim();
+            if (barcode) {
+                console.log('Manual verify entered:', barcode);
+                verifyBarcode(barcode);
+            }
+        }
+
+        async function verifyBarcode(barcode) {
+            const url = `${API_BASE_URL}/verify?code=${encodeURIComponent(barcode)}`;
+            console.log('🔎 Verifying barcode:', barcode);
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                displayResult(data, barcode);
+                const user = localStorage.getItem('medsecure_user');
+                if (user) {
+                    const userData = JSON.parse(user);
+                    await fetch(`${API_BASE_URL}/history/add`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            userId: userData.userId,
+                            searchQuery: barcode,
+                            searchType: 'barcode',
+                            scanResult: data.status || 'unknown',
+                            message: data.message || 'No details'
+                        })
+                    });
+                }
+                console.log('✅ Verification completed for:', barcode);
+            } catch (err) {
+                alert('Error verifying barcode');
+                console.error(err);
+            }
+        }
+
+        function displayResult(data, barcode) {
+            const div = document.getElementById('result');
+            div.style.display = 'block';
+            let statusClass = data.status === 'genuine' ? 'genuine' : (data.status === 'expired' ? 'expired' : 'fake');
+            div.innerHTML = `
+                <div class="result-card ${statusClass}">
+                    <div class="text-center">
+                        <div class="icon-large">${data.icon}</div>
+                        <h3>${data.name || 'Result'}</h3>
+                        <p><strong>Barcode:</strong> ${barcode}</p>
+                        <p class="lead">${data.message}</p>
+                    </div>
+                    <hr>
+                    ${data.manufacturer ? `<p><strong>Manufacturer:</strong> ${data.manufacturer}</p>` : ''}
+                    ${data.batchNum ? `<p><strong>Batch:</strong> ${data.batchNum}</p>` : ''}
+                    ${data.ingredients ? `<p><strong>Ingredients:</strong> ${data.ingredients}</p>` : ''}
+                    ${data.uses ? `<p><strong>Uses:</strong> ${data.uses}</p>` : ''}
+                    ${data.sideEffects ? `<p><strong>Side Effects:</strong> ${data.sideEffects}</p>` : ''}
+                    ${data.storageInstructions ? `<p><strong>Storage:</strong> ${data.storageInstructions}</p>` : ''}
+                    ${data.contraindications ? `<p><strong>Contraindications:</strong> ${data.contraindications}</p>` : ''}
+                    ${data.recommendation ? `<div class="alert alert-warning">${data.recommendation}</div>` : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
