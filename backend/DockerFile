@@ -1,9 +1,13 @@
+# First stage: build the application using Maven
 FROM maven:3.8.4-openjdk-17 AS build
 WORKDIR /app
-COPY . .
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
 RUN mvn clean package -DskipTests
 
-FROM eclipse-temurin:17-jdk-slim
+# Second stage: run the application using Amazon Corretto 17 (reliable)
+FROM amazoncorretto:17-alpine
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
