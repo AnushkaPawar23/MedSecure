@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://medsecure-hwfv.onrender.com';
+const API_BASE_URL = 'https://medsecure-hwfv.onrender.com/api';
 
 function checkAuth() {
     const user = localStorage.getItem('medsecure_user');
