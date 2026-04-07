@@ -82,7 +82,7 @@
 
             // Call backend (this is what makes history save correctly)
             try {
-                const res = await fetch('http://localhost:8081/api/verify-photo');
+                const res = await fetch('https://medsecure-hwfv.onrender.com/api/verify-photo');
                 const data = await res.json();
 
                 resultDiv.innerHTML = `
@@ -98,7 +98,7 @@
                 const user = localStorage.getItem('medsecure_user');
                 if (user) {
                     const u = JSON.parse(user);
-                    await fetch('http://localhost:8081/api/history/add', {
+                    await fetch('https://medsecure-hwfv.onrender.com/api/history/add', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
