@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>MedSecure - Fake Medicine Detector | Animated Safety Hub</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            background: #fefefe;
+        }
+        /* ========== ANIMATION KEYFRAMES ========== */
+        @keyframes floatSoft {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(6deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        @keyframes floatReverse {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(15px) rotate(-5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 0 rgba(255,215,0,0); box-shadow: 0 0 0 rgba(255,215,0,0);}
+            70% { text-shadow: 0 0 12px rgba(255,215,0,0.7); box-shadow: 0 0 14px rgba(255,215,0,0.5);}
+            100% { text-shadow: 0 0 0 rgba(255,215,0,0); box-shadow: 0 0 0 rgba(255,215,0,0);}
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.12); }
+            35% { transform: scale(1.08); }
+            100% { transform: scale(1); }
+        }
+        @keyframes driftParticles {
+            0% { transform: translateX(-10px) translateY(0px); opacity: 0.2; }
+            100% { transform: translateX(70px) translateY(-40px); opacity: 0.9; }
+        }
+        /* Floating medicine icons - general */
+        .floating-pill-icon {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.6;
+            z-index: 1;
+            pointer-events: none;
+            animation: floatSoft 4s infinite ease-in-out;
+        }
+        .hero-section {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(125deg, #0b2b40 0%, #1a4d5f 100%);
+        }
+        /* animated background capsules */
+        .bg-capsule {
+            position: absolute;
+            background: rgba(255,255,245,0.08);
+            width: 60px;
+            height: 30px;
+            border-radius: 30px;
+            transform: rotate(25deg);
+            animation: floatReverse 12s infinite linear;
+            pointer-events: none;
+        }
+        /* medicine bunch icons extended animation */
+        .medicine-float1, .medicine-float2, .medicine-float3, .medicine-float4,
+        .medicine-float5, .medicine-float6, .medicine-float7, .medicine-float8, .medicine-float9 {
+            transition: all 0.25s ease;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.2));
+            animation: floatSoft 2.8s infinite alternate;
+        }
+        .medicine-float1 { animation-duration: 3.2s; animation-delay: 0s; }
+        .medicine-float2 { animation-duration: 2.6s; animation-delay: 0.4s; }
+        .medicine-float3 { animation-duration: 3.5s; animation-delay: 0.1s; }
+        .medicine-float4 { animation-duration: 2.9s; animation-delay: 0.7s; }
+        .medicine-float5 { animation-duration: 3.0s; animation-delay: 0.2s; }
+        .medicine-float6 { animation-duration: 3.8s; animation-delay: 0.9s; }
+        .medicine-float7 { animation-duration: 2.5s; animation-delay: 0.3s; }
+        .medicine-float8 { animation-duration: 3.3s; animation-delay: 0.5s; }
+        .medicine-float9 { animation-duration: 2.7s; animation-delay: 0.6s; }
+
+        .medicine-bunch:hover i, .medicine-bunch:hover span {
+            animation-play-state: running;
+            transform: scale(1.03);
+            transition: 0.2s;
+        }
+        /* stats boxes with extra animations */
+        .stats-box {
+            background: white;
+            padding: 2rem 1rem;
+            border-radius: 32px;
+            transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.03);
+            position: relative;
+            overflow: hidden;
+        }
+        .stats-box:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 25px 45px rgba(0, 80, 100, 0.15);
+        }
+        .stats-box i {
+            transition: all 0.3s;
+            animation: heartbeat 1.8s infinite ease;
+            display: inline-block;
+        }
+        .stats-box:hover i {
+            animation: none;
+            transform: scale(1.15);
+            color: #ffb347;
+        }
+        /* verification cards with rotating medicine icon */
+        .verification-card {
+            background: white;
+            border-radius: 42px;
+            padding: 2rem 1.2rem;
+            transition: all 0.4s;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 2;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(255,215,0,0.2);
+        }
+        .verification-card:hover {
+            transform: scale(1.02) translateY(-8px);
+            background: linear-gradient(145deg, #ffffff, #fef9e6);
+            box-shadow: 0 30px 40px rgba(0,0,0,0.1);
+        }
+        .card-icon {
+            width: 95px;
+            height: 95px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            transition: transform 0.3s;
+        }
+        .verification-card:hover .card-icon {
+            transform: rotate(8deg) scale(1.05);
+        }
+        /* extra floating medicine pills in different sections */
+        .floating-extra {
+            position: absolute;
+            font-size: 2.2rem;
+            bottom: 10%;
+            left: -20px;
+            animation: driftParticles 9s infinite alternate;
+            opacity: 0.4;
+        }
+        .faq-animation-zone {
+            position: relative;
+        }
+        .pill-trail {
+            position: absolute;
+            right: 2%;
+            top: 15%;
+            font-size: 3rem;
+            animation: spinSlow 14s infinite linear;
+            opacity: 0.2;
+        }
+        footer .animated-meds {
+            display: inline-block;
+            animation: floatSoft 2.2s infinite alternate;
+            margin: 0 6px;
+        }
+        .navbar-brand i {
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        .navbar-brand:hover i {
+            animation: heartbeat 0.8s;
+        }
+        /* additional rotating medicine on stats */
+        .mini-rotator {
+            position: absolute;
+            bottom: 8px;
+            right: 12px;
+            font-size: 1.4rem;
+            opacity: 0.3;
+            transition: all 0.3s;
+        }
+        .stats-box:hover .mini-rotator {
+            opacity: 0.9;
+            transform: rotate(180deg) scale(1.1);
+        }
+        .btn-hero {
+            transition: all 0.3s;
+            border-radius: 60px;
+        }
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            letter-spacing: 0.5px;
+            box-shadow: 0 18px 30px rgba(0,0,0,0.2);
+        }
+        /* floating capsules around hero */
+        .hero-extra-pill {
+            position: absolute;
+            background: rgba(255,220,100,0.25);
+            width: 48px;
+            height: 24px;
+            border-radius: 40px;
+            filter: blur(1px);
+            animation: floatReverse 7s infinite alternate;
+            pointer-events: none;
+        }
+        @keyframes gentleWiggle {
+            0%,100%{ transform: rotate(0deg);}
+            25%{ transform: rotate(6deg);}
+            75%{ transform: rotate(-6deg);}
+        }
+        .verification-card h4 i {
+            animation: gentleWiggle 1.5s infinite;
+            display: inline-block;
+            margin-right: 6px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background: #0a2f3a; box-shadow: 0 6px 14px rgba(0,0,0,0.1);">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-shield-alt me-2"></i>
+                <span>Med<span style="color: #FFD700;">Secure</span></span>
+                <small style="font-size: 0.7rem; display: block;">Powered by CDSCO</small>
+            </a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="index.html">Home</a></li>
+                    <li class="nav-item" id="authLinks"><a class="nav-link" href="login.html">Login</a></li>
+                    <li class="nav-item" id="registerLink"><a class="nav-link" href="register.html">Register</a></li>
+                    <li class="nav-item dropdown d-none" id="userMenu">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i><span id="usernameDisplay">User</span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="history.html">My History</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="logout()">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with ADDITIONAL animated medicines floating everywhere -->
+    <section class="hero-section text-white py-5" style="position: relative;">
+        <!-- extra animated medicine elements (more animations) -->
+        <div class="hero-extra-pill" style="top: 12%; left: 5%; width: 70px; height: 32px; background: #ffd966; opacity:0.25; animation-duration:5s;"></div>
+        <div class="hero-extra-pill" style="bottom: 15%; right: 3%; width: 55px; height: 26px; background: #a0e7e5; opacity:0.3; animation-duration:9s;"></div>
+        <div class="hero-extra-pill" style="top: 40%; left: 85%; width: 90px; height: 38px; background: #ffb347; opacity:0.2; animation-duration:6s;"></div>
+        <i class="fas fa-capsules floating-pill-icon" style="top: 20%; left: -2%; font-size: 3rem; opacity:0.2; animation: floatSoft 12s infinite;"></i>
+        <i class="fas fa-syringe floating-pill-icon" style="bottom: 12%; right: 0%; font-size: 2.5rem; opacity:0.25; animation: floatReverse 8s infinite;"></i>
+        <i class="fas fa-tablets floating-pill-icon" style="top: 65%; left: 3%; font-size: 2.2rem; opacity:0.3; animation: floatSoft 10s infinite;"></i>
+        
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-4">Verify Medicine Authenticity Instantly</h1>
+                    <p class="lead mb-4">Protect yourself from counterfeit medicines with India's most trusted verification system.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="verify-type.html" class="btn btn-light btn-hero shadow">🚀 Start Verification</a>
+                        <a href="#features" class="btn btn-outline-light btn-hero shadow">📖 Learn More</a>
+                    </div>
+                    <small class="d-block mt-3 text-light">✓ Works offline • ✓ 3 ways to verify • ✓ Saves history</small>
+                </div>
+                <div class="col-lg-6 text-center position-relative">
+                    <!-- Enhanced medicine bunch with extra floating particles -->
+                    <div class="medicine-bunch position-relative mx-auto" style="height: 360px; width: 100%; max-width: 440px;">
+                        <i class="fas fa-capsules medicine-float1" style="position:absolute; left:5%; top:12%; font-size:5rem; color:#ffaa66;"></i>
+                        <i class="fas fa-prescription-bottle medicine-float2" style="position:absolute; left:28%; top:5%; font-size:4.2rem; color:#6cdfd0;"></i>
+                        <i class="fas fa-tablets medicine-float3" style="position:absolute; left:62%; top:18%; font-size:4.5rem; color:#f7d44a;"></i>
+                        <i class="fas fa-vial medicine-float4" style="position:absolute; left:10%; top:48%; font-size:3.8rem; color:#ba9eff;"></i>
+                        <i class="fas fa-capsules medicine-float5" style="position:absolute; left:48%; top:42%; font-size:5.5rem; color:#ff9260;"></i>
+                        <i class="fas fa-prescription-bottle-alt medicine-float6" style="position:absolute; left:74%; top:30%; font-size:4rem; color:#2dc7c9;"></i>
+                        <i class="fas fa-pills medicine-float7" style="position:absolute; left:22%; top:70%; font-size:4.3rem; color:#f3a683;"></i>
+                        <span class="medicine-float8" style="position:absolute; left:44%; top:62%; font-size:4rem;">💊</span>
+                        <span class="medicine-float9" style="position:absolute; left:68%; top:77%; font-size:3.2rem;">🧪</span>
+                        <!-- ADDITIONAL two new floating medicine icons for more animation -->
+                        <i class="fas fa-heartbeat medicine-float1" style="position:absolute; left:82%; top:58%; font-size:2.8rem; color:#ff6b81; opacity:0.9; animation-duration:2.4s;"></i>
+                        <i class="fas fa-first-aid medicine-float3" style="position:absolute; left:-3%; top:82%; font-size:3.5rem; color:#80deea; animation-duration:3.1s;"></i>
+                    </div>
+                    <p class="text-white mt-3 fw-bold"><i class="fas fa-magic me-1"></i> 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section with extra rotating pill icons and heartbeat effect -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="stats-box text-center">
+                        <i class="fas fa-check-circle fa-3x mb-3" style="color: #4caf50;"></i>
+                        <div class="counter" id="verifiedCount">0</div>
+                        <p>Medicines Verified</p>
+                        <i class="fas fa-capsules mini-rotator"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-box text-center">
+                        <i class="fas fa-users fa-3x mb-3" style="color: #2196f3;"></i>
+                        <div class="counter" id="userCount">0</div>
+                        <p>Active Users</p>
+                        <i class="fas fa-syringe mini-rotator"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-box text-center">
+                        <i class="fas fa-shield-alt fa-3x mb-3" style="color: #ff9800;"></i>
+                        <div class="counter" id="fakeDetectedCount">0</div>
+                        <p>Fake Detected</p>
+                        <i class="fas fa-tablets mini-rotator"></i>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-box text-center">
+                        <i class="fas fa-star fa-3x mb-3" style="color: #ffc107;"></i>
+                        <div class="counter">99.8</div>
+                        <p>Accuracy Rate</p>
+                        <i class="fas fa-prescription-bottle mini-rotator"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Verification methods with added animations and floating medicine decorations -->
+    <section id="features" class="py-5" style="position: relative;">
+        <div class="container position-relative">
+            <h2 class="text-center fw-bold mb-5">Choose Your Verification Method <i class="fas fa-pills fa-fw" style="animation: pulseGlow 2s infinite;"></i></h2>
+            <!-- floating pills around features section -->
+            <i class="fas fa-capsules" style="position:absolute; left:-20px; top:20%; font-size: 3rem; opacity:0.1; animation: spinSlow 15s infinite;"></i>
+            <i class="fas fa-tablets" style="position:absolute; right:0%; bottom:10%; font-size: 3rem; opacity:0.1; animation: floatReverse 12s infinite;"></i>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="verification-card text-center" onclick="location.href='verify-type.html'">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><i class="fas fa-search fa-3x text-white"></i></div>
+                        <h4><i class="fas fa-edit"></i> Type to Verify</h4>
+                        <p class="text-muted">Enter medicine name, batch, or barcode</p>
+                        <span class="badge bg-primary">Quick Search</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="verification-card text-center" onclick="location.href='verify-scan.html'">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"><i class="fas fa-qrcode fa-3x text-white"></i></div>
+                        <h4><i class="fas fa-camera"></i> Scan Barcode</h4>
+                        <p class="text-muted">Use camera to scan barcode</p>
+                        <span class="badge bg-success">Real-time</span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="verification-card text-center" onclick="location.href='verify-photo.html'">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"><i class="fas fa-camera fa-3x text-white"></i></div>
+                        <h4><i class="fas fa-cloud-upload-alt"></i> Upload Photo</h4>
+                        <p class="text-muted">Upload photo for AI analysis</p>
+                        <span class="badge bg-warning">AI Powered</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section with floating medicine trail animation (more medicine animations) -->
+    <section class="py-5 bg-light faq-animation-zone" style="position: relative; overflow: hidden;">
+        <div class="pill-trail"><i class="fas fa-pills"></i><i class="fas fa-syringe ms-2"></i></div>
+        <div class="container">
+            <h2 class="text-center fw-bold mb-5"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h2>
+            <div class="row justify-content-center">
+                <div class="col-lg-8" id="faqContainer"></div>
+            </div>
+        </div>
+        <!-- extra floating capsule decorations -->
+        <div style="position: absolute; bottom: 10px; left: 5%;"><i class="fas fa-capsules fa-2x" style="opacity: 0.15; animation: floatSoft 4s infinite;"></i></div>
+        <div style="position: absolute; top: 15%; right: 4%;"><i class="fas fa-tablets fa-3x" style="opacity: 0.12; animation: floatReverse 7s infinite;"></i></div>
+    </section>
+
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p>&copy; 2024 MedSecure - India's Medicine Verification System 
+                <span class="animated-meds"><i class="fas fa-capsules"></i></span>
+                <span class="animated-meds" style="animation-duration: 1.4s;"><i class="fas fa-syringe"></i></span>
+                <span class="animated-meds"><i class="fas fa-pills"></i></span>
+            </p>
+            <p class="small">Powered by CDSCO | Verify before you consume <i class="fas fa-heartbeat animated-meds" style="animation: heartbeat 1s infinite;"></i></p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ---------------------- Auth integration (matches the rest of the project) ----------------------
+        // Use same localStorage key as login.html and auth.js: "medsecure_user"
+        let currentUser = localStorage.getItem("medsecure_user") ? JSON.parse(localStorage.getItem("medsecure_user")) : null;
+
+        // Update navbar based on login status
+        function updateAuthUI() {
+            const authLinks = document.getElementById("authLinks");
+            const registerLink = document.getElementById("registerLink");
+            const userMenu = document.getElementById("userMenu");
+            const usernameSpan = document.getElementById("usernameDisplay");
+
+            if (currentUser && currentUser.username) {
+                if (authLinks) authLinks.classList.add("d-none");
+                if (registerLink) registerLink.classList.add("d-none");
+                if (userMenu) userMenu.classList.remove("d-none");
+                if (usernameSpan) usernameSpan.innerText = currentUser.fullName || currentUser.username;
+            } else {
+                if (authLinks) authLinks.classList.remove("d-none");
+                if (registerLink) registerLink.classList.remove("d-none");
+                if (userMenu) userMenu.classList.add("d-none");
+            }
+        }
+
+        // Logout function (matches auth.js)
+        window.logout = function() {
+            localStorage.removeItem("medsecure_user");
+            currentUser = null;
+            updateAuthUI();
+            window.location.href = "index.html";
+        };
+
+        // ---------------------- Counters (simulated data) ----------------------
+        let verifiedTotal = localStorage.getItem("med_verifiedTotal") ? parseInt(localStorage.getItem("med_verifiedTotal")) : 12480;
+        let userTotal = localStorage.getItem("med_userTotal") ? parseInt(localStorage.getItem("med_userTotal")) : 3542;
+        let fakeTotal = localStorage.getItem("med_fakeTotal") ? parseInt(localStorage.getItem("med_fakeTotal")) : 876;
+
+        function updateCountersDisplay() {
+            const verifiedEl = document.getElementById("verifiedCount");
+            const userEl = document.getElementById("userCount");
+            const fakeEl = document.getElementById("fakeDetectedCount");
+            if (verifiedEl) verifiedEl.innerText = verifiedTotal.toLocaleString();
+            if (userEl) userEl.innerText = userTotal.toLocaleString();
+            if (fakeEl) fakeEl.innerText = fakeTotal.toLocaleString();
+        }
+
+        function simulateLiveData() {
+            setInterval(() => {
+                verifiedTotal += Math.floor(Math.random() * 3);
+                fakeTotal += Math.random() > 0.75 ? 1 : 0;
+                userTotal = 3542 + Math.floor(Math.random() * 40);
+                localStorage.setItem("med_verifiedTotal", verifiedTotal);
+                localStorage.setItem("med_fakeTotal", fakeTotal);
+                localStorage.setItem("med_userTotal", userTotal);
+                updateCountersDisplay();
+            }, 7000);
+        }
+
+        // ---------------------- FAQ (static but styled) ----------------------
+        const faqData = [
+            { q: "How does MedSecure detect fake medicines?", a: "We use CDSCO database + AI image recognition and barcode scanning to cross-verify medicine licenses and authenticity markers." },
+            { q: "Is my verification history saved?", a: "Yes! Once you log in, every verification is saved in your private history for future reference." },
+            { q: "Can I verify a medicine without internet?", a: "Yes, offline mode supports barcode scanning & saved batch data (updated daily)." },
+            { q: "What should I do if medicine is flagged as fake?", a: "Report immediately to CDSCO helpline 1800-180-5524 and return to pharmacist." }
+        ];
+
+        function loadFAQs() {
+            const container = document.getElementById("faqContainer");
+            if (!container) return;
+            let html = `<div class="accordion" id="faqAccordion">`;
+            faqData.forEach((item, idx) => {
+                html += `
+                    <div class="accordion-item mb-3 border-0 shadow-sm rounded-4">
+                        <h2 class="accordion-header" id="heading${idx}">
+                            <button class="accordion-button ${idx !== 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${idx}" style="background:#f8f9fa; font-weight:600;">
+                                <i class="fas fa-capsules me-2 text-warning"></i> ${item.q}
+                            </button>
+                        </h2>
+                        <div id="collapse${idx}" class="accordion-collapse collapse ${idx === 0 ? 'show' : ''}" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                ${item.a} <i class="fas fa-tablets ms-2" style="color:#0d6efd;"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        // ---------------------- Extra floating medicine decorators ----------------------
+        function addExtraMedicineAnimations() {
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                if (section.classList.contains('hero-section')) return;
+                const pillCount = Math.floor(Math.random() * 3) + 1;
+                for (let i = 0; i < pillCount; i++) {
+                    const pill = document.createElement('i');
+                    const icons = ['fa-capsules', 'fa-tablets', 'fa-pills', 'fa-syringe', 'fa-prescription-bottle'];
+                    const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+                    pill.className = `fas ${randomIcon} floating-extra-element`;
+                    pill.style.position = 'absolute';
+                    pill.style.fontSize = `${Math.floor(Math.random() * 20) + 18}px`;
+                    pill.style.left = `${Math.random() * 90}%`;
+                    pill.style.top = `${Math.random() * 85}%`;
+                    pill.style.opacity = '0.1';
+                    pill.style.pointerEvents = 'none';
+                    pill.style.zIndex = '0';
+                    pill.style.animation = `floatSoft ${Math.random() * 5 + 3}s infinite alternate`;
+                    section.style.position = 'relative';
+                    section.appendChild(pill);
+                }
+            });
+        }
+
+        // ---------------------- Initialization ----------------------
+        document.addEventListener("DOMContentLoaded", function() {
+            updateAuthUI();
+            updateCountersDisplay();
+            loadFAQs();
+            simulateLiveData();
+            addExtraMedicineAnimations();
+
+            // Increment verified count when a verification card is clicked (if logged in)
+            const cards = document.querySelectorAll('.verification-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (currentUser) {
+                        verifiedTotal += 1;
+                        localStorage.setItem("med_verifiedTotal", verifiedTotal);
+                        updateCountersDisplay();
+                    } else {
+                        // Guest verification also counts (but doesn't save history)
+                        verifiedTotal += 1;
+                        localStorage.setItem("med_verifiedTotal", verifiedTotal);
+                        updateCountersDisplay();
+                    }
+                });
+            });
+
+            // Re-trigger heartbeat on stats icons every 5 seconds
+            setInterval(() => {
+                const statIcons = document.querySelectorAll('.stats-box i.fa-3x');
+                statIcons.forEach(icon => {
+                    icon.style.animation = 'none';
+                    setTimeout(() => { icon.style.animation = 'heartbeat 1.8s infinite ease'; }, 10);
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
