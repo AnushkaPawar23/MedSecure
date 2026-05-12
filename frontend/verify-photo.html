@@ -39,7 +39,7 @@
 
                 <div id="result" class="mt-4"></div>
 
-                <!-- Disclaimer message you asked for -->
+                <!-- Disclaimer message -->
                 <div class="note mt-3">
                     ⚠️ <strong>Note:</strong> Image analysis is helpful but <strong>not 100% accurate</strong>.<br>
                     For completely reliable results, please use <strong>“Type Name / Batch”</strong> or <strong>“Scan Barcode”</strong> option.
@@ -80,9 +80,9 @@
         async function showLoadingAndResult() {
             resultDiv.innerHTML = `<div class="alert alert-info">📡 Analyzing photo with AI...</div>`;
 
-            // Call backend (this is what makes history save correctly)
             try {
-                const res = await fetch('https://medsecure-hwfv.onrender.com/api/verify-photo');
+                // Use the global API_BASE_URL from auth.js
+                const res = await fetch(`${API_BASE_URL}/verify-photo`);
                 const data = await res.json();
 
                 resultDiv.innerHTML = `
@@ -94,11 +94,11 @@
                         <button class="btn btn-success" onclick="alert('✅ Saved in your verification history!')">✅ Mark as Safe & Continue</button>
                     </div>`;
 
-                // Save to history (this is the fix)
+                // Save to history
                 const user = localStorage.getItem('medsecure_user');
                 if (user) {
                     const u = JSON.parse(user);
-                    await fetch('https://medsecure-hwfv.onrender.com/api/history/add', {
+                    await fetch(`${API_BASE_URL}/history/add`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
