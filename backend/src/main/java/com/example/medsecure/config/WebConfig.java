@@ -6,6 +6,5 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-
-    // No @Bean here – CORS is now handled in SecurityConfig
+    // CORS is now handled in SecurityConfig to avoid bean conflict
 }
